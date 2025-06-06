@@ -68,7 +68,6 @@ def proc_range(msg):
 
 def proc_rgb_frame(msg):
     #rgb8 encoding
-    print(msg)
 
     timestamp = msg.header.stamp.sec + (msg.header.stamp.nanosec * 1e-9)
     encoding = msg.encoding
@@ -98,8 +97,11 @@ def proc_imu(msg):
 
     # I should be looking at a topic called 'imu' -> Interesting, I think I forgot to listen to this topic.
     # Despite unite_imu being set to 2, there is no 'imu' topic available in the ros2 topics list
+
+    # print(msg)
+
     timestamp = msg.header.stamp.sec + (msg.header.stamp.nanosec * 1e-9)
-    return {"t":timestamp, "ax": msg.linear_acceleration.x, "ay": msg.linear_acceleration.y, "az": msg.linear_acceleration.z, 
+    return {"t":timestamp, "type":"imu", "ax": msg.linear_acceleration.x, "ay": msg.linear_acceleration.y, "az": msg.linear_acceleration.z, 
             "gx":msg.angular_velocity.x, "gy": msg.angular_velocity.y, "gz":msg.angular_velocity.z}
 
 topic_to_processor_lambda = {
@@ -132,8 +134,12 @@ with AnyReader([bagpath], default_typestore=typestore) as reader:
         processed_msg = topic_to_processor_lambda[connection.topic](msg)
         all_data.append(processed_msg)
 
+    START = reader.start_time * 1e-9
+    END = reader.end_time * 1e-9
+    print(f"ROS duration {START} - {END}")
 
-all_data = sorted(all_data, key=lambda x: x["t"])
+    # Filter to make sure all messages ( and data jsons ) fall within the ROS recording time interval, (because some of them don't apparently)
+    all_data = list(filter(lambda x: (START <= x["t"] <= END), all_data))
+    all_data = sorted(all_data, key=lambda x: x["t"])
 
-
-json.dump(all_data, open(outpath+"/all.json", 'w'), indent=1)
+    json.dump(all_data, open(outpath+"/all.json", 'w'), indent=1)
