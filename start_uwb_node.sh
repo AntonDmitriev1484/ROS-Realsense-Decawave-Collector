@@ -4,7 +4,7 @@ cd /home/admi3ev/Beluga-Firmware-Mod/ROS/
 
 source ./install/setup.bash
 
-ros2 run beluga beluga -ros2 run beluga beluga \
+ros2 run beluga beluga \
   --ros-args \
   --param ranges_name:=uwb_ranges \
   --param exchange_name:=uwb_exchanges \
