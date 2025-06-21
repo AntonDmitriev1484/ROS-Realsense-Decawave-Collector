@@ -1,6 +1,2 @@
-test_collection/
-test_collection_post/
-pilot0_ros/
-pilot0_ros_post/
-pilot1_ros/
-pilot1_ros_post/
+collect/ros2/
+collect/ros1/
